@@ -26,6 +26,9 @@
 <main class="container">
     @yield('content')
 </main>
+<footer class="footer">
+    A <a href="https://nikniq.com" target="_blank" rel="noopener">nikniq.com</a> game
+</footer>
 @stack('scripts')
 </body>
 </html>

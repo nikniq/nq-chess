@@ -15,6 +15,7 @@ nav a { text-decoration: none; }
 .who { color: var(--muted); }
 .inline { display: inline; margin: 0; }
 .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+.footer { text-align: center; padding: 16px; color: var(--muted); font-size: .85rem; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
 .narrow { max-width: 400px; margin: 40px auto; }
 h1, h2, h3 { margin-top: 0; }
