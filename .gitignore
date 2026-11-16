@@ -14,10 +14,12 @@
 /.zed
 /auth.json
 /node_modules
-/public/build
-/public/fonts-manifest.dev.json
-/public/hot
-/public/storage
+/public_html/build
+/public_html/build.new
+/public_html/build.old
+/public_html/fonts-manifest.dev.json
+/public_html/hot
+/public_html/storage
 /storage/*.key
 /storage/pail
 /vendor
@@ -25,5 +27,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+.deploy.env
+/storage/backups
+.deploy_previous
 
 /.claude/settings.local.json
