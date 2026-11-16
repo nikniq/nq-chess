@@ -34,7 +34,8 @@
 #
 # Deploy steps: maintenance on → update code → composer → front-end assets →
 # checks (.env, APP_KEY, DB reachable, assets, APP_DEBUG off) → DB backup →
-# migrate → cache → maintenance off.
+# migrate (only if the database is new or has pending migrations) → cache →
+# maintenance off.
 # Any failure reverts the code to the previous commit and brings the site back up.
 #
 # Front-end assets (public_html/build) are git-ignored. If the server has npm
@@ -191,8 +192,15 @@ if [ "$NO_BACKUP" != 1 ]; then
   ./cx.sh backup pre-deploy | sed 's/^/      /' || revert "database backup failed (use --no-backup to skip)"
 fi
 
-step "Migrating"
-\$PHP artisan migrate --force || revert "migrations failed (DB backup is in storage/backups)"
+# Migrate only when needed: a fresh database (no migrations table yet) or pending migrations.
+if ! \$PHP artisan migrate:status >/dev/null 2>&1; then pending=all
+else pending=\$(\$PHP artisan migrate:status 2>&1 | grep -c 'Pending' || true); fi
+if [ "\$pending" = 0 ]; then
+  step "Database schema up to date — nothing to migrate"
+else
+  step "Migrating (\$pending pending)"
+  \$PHP artisan migrate --force || revert "migrations failed (DB backup is in storage/backups)"
+fi
 step "Caching config/routes/views"
 \$PHP artisan optimize >/dev/null || revert "optimize failed"
 rm -rf public_html/build.old
