@@ -3,6 +3,7 @@
 @section('content')
 <div class="card narrow">
     <h1>Create account</h1>
+    @include('auth.partials.oauth')
     <form method="POST" action="{{ route('register') }}">
         @csrf
         <label>Name <input name="name" value="{{ old('name') }}" required maxlength="50" autofocus></label>

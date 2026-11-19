@@ -15,6 +15,13 @@ nav a { text-decoration: none; }
 .who { color: var(--muted); }
 .inline { display: inline; margin: 0; }
 .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+.btn-oauth { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-bottom: 10px; background: #fff; color: #222; border: 1px solid var(--border); }
+.btn-oauth:hover { background: #f1f3f4; }
+.btn-nikniq { background: #141a5c; color: #fff; border-color: #141a5c; }
+.btn-nikniq:hover { background: #1c2580; }
+.nq-logo { background: #f6c945; color: #141a5c; border-radius: 4px; padding: 0 5px; font: 900 .85rem system-ui; letter-spacing: -.5px; }
+.or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .85rem; margin: 14px 0; }
+.or::before, .or::after { content: ""; flex: 1; border-top: 1px solid var(--border); }
 .footer { text-align: center; padding: 16px; color: var(--muted); font-size: .85rem; }
 .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
 .narrow { max-width: 400px; margin: 40px auto; }

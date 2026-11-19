@@ -19,7 +19,7 @@ art()  { $PHP artisan "$@"; }
 confirm() { [ "${YES:-0}" = 1 ] && return 0; read -r -p "$1 [y/N] " a; [ "$a" = y ] || [ "$a" = Y ]; }
 
 # Read a value from .env (strips quotes; last definition wins).
-envval() { grep -E "^$1=" .env 2>/dev/null | tail -1 | cut -d= -f2- | sed -e 's/^["'"'"']//' -e 's/["'"'"']$//'; }
+envval() { { grep -E "^$1=" .env 2>/dev/null || true; } | tail -1 | cut -d= -f2- | sed -e 's/^["'"'"']//' -e 's/["'"'"']$//'; }
 
 # Set or add KEY=VALUE in .env.
 envset() {
@@ -51,6 +51,7 @@ ${B}Setup${N}
   setup            Install deps, create .env + key, create DB, migrate, build assets
   doctor           Full health check (PHP, extensions, .env, DB, migrations, assets)
   check            Pre-deploy gate: exits non-zero if the app can't safely deploy
+  oauth            Google + nikniq.com sign-in setup values (redirect URIs etc.)
   env:prod         Set production-safe .env values (APP_ENV, APP_DEBUG, log level)
   env:set K V      Set a value in .env
 
@@ -125,8 +126,32 @@ case "$cmd" in
     else
       warn "APP_ENV=$(envval APP_ENV) (not production)"
     fi
+    check "Google sign-in configured" "[ -n \"$(envval GOOGLE_CLIENT_ID)\" ] && [ -n \"$(envval GOOGLE_CLIENT_SECRET)\" ]" "button hidden (see ./cx.sh oauth)"
+    check "nikniq.com sign-in configured" "[ -n \"$(envval NIKNIQ_CLIENT_ID)\" ]" "button hidden (see ./cx.sh oauth)"
     [ $fail -eq 0 ] || die "Checks failed"
     [ $warns -eq 0 ] && ok "All checks passed" || ok "Passed with warnings"
+    ;;
+
+  oauth)
+    url=$(envval APP_URL); url=${url:-http://localhost:8000}; url=${url%/}
+    st() { [ -n "$(envval "$1")" ] && echo set || echo "not set"; }
+    cat <<O
+${B}Google${N}  (https://console.cloud.google.com/apis/credentials)
+  1. Create an OAuth client ID → type "Web application"
+  2. Authorized JavaScript origin:  ${G}${url}${N}
+  3. Authorized redirect URI:       ${G}${url}/auth/google/callback${N}
+  4. ./cx.sh env:set GOOGLE_CLIENT_ID …   and   ./cx.sh env:set GOOGLE_CLIENT_SECRET …
+  Current: client id ${D}$(st GOOGLE_CLIENT_ID)${N}, secret ${D}$(st GOOGLE_CLIENT_SECRET)${N}
+
+${B}nikniq.com${N}  ($(u=$(envval NIKNIQ_URL); echo "${u:-https://nikniq.com}"))
+  1. On nikniq.com open /admin/games → Chess and copy its client id
+  2. Add to "Allowed redirect URIs" (exact match):  ${G}${url}/auth/callback${N}
+  3. ./cx.sh env:set NIKNIQ_CLIENT_ID …
+     ./cx.sh env:set NIKNIQ_REDIRECT_URI ${url}/auth/callback
+  Current: client id ${D}$(st NIKNIQ_CLIENT_ID)${N}, redirect ${D}$(envval NIKNIQ_REDIRECT_URI)${N}
+
+Then: ./cx.sh optimize
+O
     ;;
 
   env:prod)
